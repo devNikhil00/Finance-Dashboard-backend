@@ -7,6 +7,7 @@ const AppError = require('../utils/appError');
 const isValidDateValue = (value) => !Number.isNaN(new Date(value).getTime());
 const isValidAmount = (value) => Number.isFinite(Number(value)) && Number(value) > 0;
 const canModifyRecord = (user) => user?.role === 'admin';
+const escapeRegExp = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 const buildRecordFilters = (query) => {
   const filters = {};
@@ -80,11 +81,30 @@ const getRecords = asyncHandler(async (req, res) => {
 
   filters.createdBy = req.user._id;
 
+  const page = Math.max(parseInt(req.query.page, 10) || 1, 1);
+  const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 10, 1), 100);
+
+  if (req.query.search) {
+    const search = escapeRegExp(req.query.search.trim());
+    filters.$or = [
+      { category: { $regex: search, $options: 'i' } },
+      { notes: { $regex: search, $options: 'i' } }
+    ];
+  }
+
+  const totalRecords = await Record.countDocuments(filters);
+
   const records = await Record.find(filters)
     .populate('createdBy', 'name email role')
-    .sort({ date: -1, createdAt: -1 });
+    .sort({ date: -1, createdAt: -1 })
+    .skip((page - 1) * limit)
+    .limit(limit);
 
   return sendResponse(res, 200, 'Records retrieved successfully', {
+    page,
+    limit,
+    totalRecords,
+    totalPages: Math.ceil(totalRecords / limit) || 1,
     count: records.length,
     records
   });

@@ -10,7 +10,7 @@ const {
 
 router.use(authMiddleware);
 
-router.get('/', getRecords);
+router.get('/', allowRoles('analyst', 'admin'), getRecords);
 router.post('/', allowRoles('admin'), createRecord);
 router.put('/:id', allowRoles('admin'), updateRecord);
 router.delete('/:id', allowRoles('admin'), deleteRecord);

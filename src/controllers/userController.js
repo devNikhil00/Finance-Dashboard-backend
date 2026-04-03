@@ -6,11 +6,33 @@ const AppError = require('../utils/appError');
 
 const ALLOWED_ROLES = ['viewer', 'analyst', 'admin'];
 const ALLOWED_STATUS = ['active', 'inactive'];
+const escapeRegExp = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 const listUsers = asyncHandler(async (req, res) => {
-  const users = await User.find({}).select('-password').sort({ createdAt: -1 });
+  const page = Math.max(parseInt(req.query.page, 10) || 1, 1);
+  const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 10, 1), 100);
+  const filters = {};
+
+  if (req.query.search) {
+    const search = escapeRegExp(req.query.search.trim());
+    filters.$or = [
+      { name: { $regex: search, $options: 'i' } },
+      { email: { $regex: search, $options: 'i' } }
+    ];
+  }
+
+  const totalUsers = await User.countDocuments(filters);
+  const users = await User.find(filters)
+    .select('-password')
+    .sort({ createdAt: -1 })
+    .skip((page - 1) * limit)
+    .limit(limit);
 
   return sendResponse(res, 200, 'Users retrieved successfully', {
+    page,
+    limit,
+    totalUsers,
+    totalPages: Math.ceil(totalUsers / limit) || 1,
     count: users.length,
     users
   });
