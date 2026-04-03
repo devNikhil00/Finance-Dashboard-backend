@@ -2,9 +2,18 @@
 
 Backend API for a finance dashboard application with JWT authentication, role-based access control, financial record management, and MongoDB aggregation-based analytics.
 
+This submission is intentionally scoped for assessment: the focus is clear backend design, correct business logic, reliable behavior, and well-explained engineering decisions.
+
 ## Project Overview
 
 This project provides a secure REST API for managing financial records and generating dashboard insights for authenticated users. It supports role-based access control for `viewer`, `analyst`, and `admin` users, with user-specific data isolation through `createdBy`.
+
+## Assessment Focus
+
+- Prioritized readability and separation of concerns over unnecessary complexity
+- Kept business rules explicit in route guards and controller logic
+- Standardized API responses and centralized error handling for predictable behavior
+- Added practical reliability features (validation, rate limiting, inactive-user checks)
 
 ## Features
 
@@ -51,7 +60,7 @@ src/
 
 ```bash
 git clone <repository-url>
-cd finance-dashboard-backend
+cd <project-folder>
 ```
 
 2. Install dependencies
@@ -72,6 +81,12 @@ For production:
 
 ```bash
 npm start
+```
+
+5. Run automated tests
+
+```bash
+npm test
 ```
 
 ## Environment Variables
@@ -136,6 +151,20 @@ Use this header for protected routes:
 Authorization: Bearer <your_jwt_token>
 ```
 
+## API Response Contract
+
+All endpoints return a consistent response envelope:
+
+```json
+{
+  "success": true,
+  "message": "Human-readable message",
+  "data": {}
+}
+```
+
+For handled errors, the same shape is preserved with `success: false` and appropriate HTTP status codes.
+
 ## Role-Based Access Control
 
 - `viewer`: dashboard-only access
@@ -147,6 +176,15 @@ Authorization: Bearer <your_jwt_token>
 - Only `admin` users can create, update, or delete records
 - Only `analyst` and `admin` users can read records
 - Data isolation is enforced through the `createdBy` field
+
+## Validation and Reliability
+
+- Request validation for required fields and allowed enums
+- ObjectId format checks for route params
+- Centralized error mapping for validation errors, duplicate keys, and invalid identifiers
+- JWT verification and inactive-user blocking
+- Global API rate limiting plus stricter auth-route limiting
+- Automated smoke and basic test coverage for core flows
 
 ## Key Design Decisions
 
@@ -167,6 +205,28 @@ MongoDB aggregation, especially `$facet`, allows dashboard totals, category summ
 - Each user can access only their own records
 - Admin users have elevated privileges
 - No frontend is included in this project
+
+## Tradeoffs
+
+- Kept implementation lightweight and interview-friendly instead of introducing additional layers (for example, service/repository abstraction) that are not required for this scope
+- Focused tests on critical business paths and reliability checks rather than full end-to-end suite depth
+- Chose practical security defaults suitable for assignment context; production deployments should additionally include secret rotation, stronger input schemas, and expanded observability
+
+## Quick Evaluator Checklist
+
+- Start app: `npm run dev`
+- Health check: `GET /api/health`
+- Register and login to obtain JWT
+- Validate RBAC:
+  - `viewer`: dashboard only
+  - `analyst`: records read + dashboard
+  - `admin`: records write + user management
+- Confirm error handling:
+  - Invalid ID returns `400`
+  - Missing token returns `401`
+  - Unauthorized role returns `403`
+  - Unknown route returns `404`
+- Run tests: `npm test`
 
 ## Future Improvements
 
