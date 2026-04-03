@@ -2,13 +2,13 @@
 
 Backend API for a finance dashboard application with JWT authentication, role-based access control, financial record management, and MongoDB aggregation-based analytics.
 
-This submission is intentionally scoped for assessment: the focus is clear backend design, correct business logic, reliable behavior, and well-explained engineering decisions.
+This project is intentionally scoped to focus on clear backend design, correct business logic, reliable behavior, and well-explained engineering decisions.
 
 ## Project Overview
 
 This project provides a secure REST API for managing financial records and generating dashboard insights for authenticated users. It supports role-based access control for `viewer`, `analyst`, and `admin` users, with user-specific data isolation through `createdBy`.
 
-## Assessment Focus
+## Engineering Approach
 
 - Prioritized readability and separation of concerns over unnecessary complexity
 - Kept business rules explicit in route guards and controller logic
@@ -212,7 +212,7 @@ MongoDB aggregation, especially `$facet`, allows dashboard totals, category summ
 - Focused tests on critical business paths and reliability checks rather than full end-to-end suite depth
 - Chose practical security defaults suitable for assignment context; production deployments should additionally include secret rotation, stronger input schemas, and expanded observability
 
-## Quick Evaluator Checklist
+## Verification Guide
 
 - Start app: `npm run dev`
 - Health check: `GET /api/health`
