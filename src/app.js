@@ -24,6 +24,19 @@ app.use(express.urlencoded({ extended: false }));
 app.use(morgan('dev'));
 app.use(apiLimiter);
 
+app.get('/', (req, res) => {
+	res.status(200).json({
+		success: true,
+		message: 'Finance Dashboard Backend API is running',
+		data: {
+			healthCheck: '/api/health',
+			auth: '/api/auth',
+			records: '/api/records',
+			dashboard: '/api/dashboard/summary'
+		}
+	});
+});
+
 app.use('/api', routes);
 
 app.use(notFound);
